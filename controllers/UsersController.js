@@ -1,5 +1,10 @@
-const crypto = require('crypto');
+const Bull = require('bull');
 const dbClient = require('../utils/db');
+const redisClient = require('../utils/redis');
+const { v4: uuidv4 } = require('uuid');
+const sha1 = require('sha1');
+
+const userQueue = new Bull('userQueue');
 
 class UsersController {
     static async postNew(req, res) {
@@ -13,20 +18,28 @@ class UsersController {
             return res.status(400).json({ error: 'Missing password' });
         }
 
-        const userExists = await dbClient.db.collection('users').findOne({ email });
-        if (userExists) {
+        const usersCollection = dbClient.db.collection('users');
+        const existingUser = await usersCollection.findOne({ email });
+
+        if (existingUser) {
             return res.status(400).json({ error: 'Already exist' });
         }
 
-        const hashedPassword = crypto.createHash('sha1').update(password).digest('hex');
-
-        const result = await dbClient.db.collection('users').insertOne({
+        const hashedPassword = sha1(password);
+        const user = {
             email,
             password: hashedPassword,
-        });
+        };
 
-        const newUser = result.ops[0];
-        return res.status(201).json({ id: newUser._id, email: newUser.email });
+        const result = await usersCollection.insertOne(user);
+        const userId = result.insertedId;
+
+        userQueue.add({ userId });
+
+        return res.status(201).json({
+            id: userId,
+            email,
+        });
     }
 }
 
