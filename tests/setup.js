@@ -6,19 +6,19 @@ const dbClient = require('../utils/db');
 let mongoServer;
 
 beforeAll(async () => {
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
+  mongoServer = await MongoMemoryServer.create();
+  const mongoUri = mongoServer.getUri();
 
-    await mongoose.connect(mongoUri, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
-    });
+  await mongoose.connect(mongoUri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
 
-    dbClient.db = mongoose.connection;
+  dbClient.db = mongoose.connection;
 });
 
 afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
-    redisClient.client.quit();
+  await mongoose.disconnect();
+  await mongoServer.stop();
+  redisClient.client.quit();
 });
