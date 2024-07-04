@@ -1,40 +1,28 @@
-import redisClient from './utils/redis';
-import dbClient from './utils/db';
+const redisClient = require('./utils/redis');
 
-const waitConnection = () => {
-    return new Promise((resolve, reject) => {
-        let i = 0;
-        const repeatFct = async () => {
-            await setTimeout(() => {
-                i += 1;
-                if (i >= 10) {
-                    reject();
-                } else if (!dbClient.isAlive()) {
-                    repeatFct();
-                } else {
-                    resolve();
-                }
-            }, 1000);
-        };
-        repeatFct();
-    });
-};
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+process.on('unhandledRejection', (error) => {
+  console.error('Unhandled Promise Rejection:', error);
+});
 
 (async () => {
-    // Testing redisClient
-    console.log(redisClient.isAlive());
-    console.log(await redisClient.get('myKey'));
-    await redisClient.set('myKey', 12, 5);
-    console.log(await redisClient.get('myKey'));
+  try {
+    // Wait for a short period to ensure the connection is established
+    await sleep(100); 
+
+    console.log(redisClient.isAlive()); // should print true if connected
+
+    console.log(await redisClient.get('myKey')); // should print null initially
+
+    await redisClient.set('myKey', 12, 5); // set key with 5 seconds expiration
+
+    console.log(await redisClient.get('myKey')); // should print 12
 
     setTimeout(async () => {
-        console.log(await redisClient.get('myKey'));
+      console.log(await redisClient.get('myKey')); // should print null after 10 seconds
     }, 1000 * 10);
-
-    // Testing dbClient
-    console.log(dbClient.isAlive());
-    await waitConnection();
-    console.log(dbClient.isAlive());
-    console.log(await dbClient.nbUsers());
-    console.log(await dbClient.nbFiles());
+  } catch (error) {
+    console.error('Error:', error);
+  }
 })();
