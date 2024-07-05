@@ -2,7 +2,7 @@ const { v4: uuidv4 } = require('uuid');
 const sha1 = require('sha1');
 const redisClient = require('../utils/redis');
 const dbClient = require('../utils/db');
-const { Base64 } = require('js-base64');
+const { Base64 } = require('js-base64'); // Ensure this is correctly imported
 
 class AuthController {
   static async getConnect(req, res) {

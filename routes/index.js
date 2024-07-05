@@ -3,8 +3,7 @@ const router = express.Router();
 const AuthController = require('../controllers/AuthController');
 const UsersController = require('../controllers/UsersController');
 
-// Existing routes...
-
+// Define the new routes
 router.get('/connect', AuthController.getConnect);
 router.get('/disconnect', AuthController.getDisconnect);
 router.get('/users/me', UsersController.getMe);
