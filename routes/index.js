@@ -2,7 +2,7 @@ const express = require('express');
 const AppController = require('../controllers/AppController');
 const UsersController = require('../controllers/UsersController');
 const AuthController = require('../controllers/AuthController');
-const FilesController = require('../controllers/FilesController');
+const FilesController = require('../controllers/FilesController'); // Add FilesController
 
 const router = express.Router();
 
@@ -12,6 +12,6 @@ router.post('/users', UsersController.postNew);
 router.get('/connect', AuthController.getConnect);
 router.get('/disconnect', AuthController.getDisconnect);
 router.get('/users/me', UsersController.getMe);
-router.post('/files', FilesController.postUpload);
+router.post('/files', FilesController.postUpload); // Add the new route
 
 module.exports = router;
