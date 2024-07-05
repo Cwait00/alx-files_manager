@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 
 class DBClient {
   constructor() {
@@ -23,6 +23,14 @@ class DBClient {
 
   async nbFiles() {
     return this.db.collection('files').countDocuments();
+  }
+
+  async findUserByToken(token) {
+    const userId = await redisClient.get(`auth_${token}`);
+    if (!userId) {
+      return null;
+    }
+    return this.db.collection('users').findOne({ _id: ObjectId(userId) });
   }
 }
 
